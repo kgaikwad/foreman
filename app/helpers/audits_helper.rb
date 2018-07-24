@@ -60,7 +60,7 @@ module AuditsHelper
     ""
   end
 
-  def details(audit, path = audit_path(audit))
+  def details(audit, path = audits_path(:search => "id=#{audit.id}"))
     if audit.action == 'update'
       return [] unless audit.audited_changes.present?
       audit.audited_changes.map do |name, change|
@@ -92,6 +92,7 @@ module AuditsHelper
   end
 
   def audit_template?(audit)
+    return false if audit.audited_changes.blank?
     audit.audited_changes["template"] && audit.audited_changes["template"][0] != audit.audited_changes["template"][1]
   end
 
@@ -121,26 +122,6 @@ module AuditsHelper
 
   def audit_time(audit)
     date_time_absolute(audit.created_at)
-  end
-
-  def audit_affected_locations(audit)
-    base = audit.locations.authorized(:view_locations)
-    return _('N/A') if base.empty?
-
-    authorizer = Authorizer.new(User.current, base)
-    base.map do |location|
-      link_to_if_authorized location.name, hash_for_edit_location_path(location).merge(:auth_object => location, :permission => 'edit_locations', :authorizer => authorizer)
-    end.to_sentence.html_safe
-  end
-
-  def audit_affected_organizations(audit)
-    base = audit.organizations.authorized(:view_organizations)
-    return _('N/A') if base.empty?
-
-    authorizer = Authorizer.new(User.current, base)
-    base.map do |organization|
-      link_to_if_authorized organization.name, hash_for_edit_organization_path(organization).merge(:auth_object => organization, :permission => 'edit_organizations', :authorizer => authorizer)
-    end.to_sentence.html_safe
   end
 
   def audited_icon(audit)
@@ -201,13 +182,9 @@ module AuditsHelper
 
   def audit_remote_address(audit)
     return if audit.remote_address.empty?
-    content_tag :span, :style => 'color:#999;' do
+    content_tag :p, :style => 'color:#999;' do
       "(" + audit.remote_address + ")"
     end
-  end
-
-  def audit_details(audit)
-    "#{audit_user(audit)} #{audit_remote_address audit} #{audit_action_name audit} #{audited_type audit}: #{link_to(audit_title(audit), audit_path(audit))}".html_safe
   end
 
   def nested_host_audit_breadcrumbs
@@ -232,6 +209,26 @@ module AuditsHelper
     )
   end
 
+  def construct_additional_info(audits)
+    audits.map do |audit|
+      action_display_name = audit_action_name(audit)
+
+      audit.attributes.merge!(
+        'action_display_name' => action_display_name,
+        'audited_type_name' => audited_type(audit),
+        'user_info' =>  user_info(audit),
+        'audit_title' => audit_title(audit),
+        'audit_title_url' => audit_title_url(audit),
+        'creation_time' => time_of_creation(audit),
+        'affected_locations' => fetch_affected_locations(audit),
+        'affected_organizations' => fetch_affected_organizations(audit),
+        'details' => (%[added removed].include?(action_display_name) ? details(audit) : []),
+        'audited_changes_with_id_to_label' => audit.audited_changes.blank? ? [] : rebuild_audit_changes(audit),
+        'allowed_actions' => actions_allowed(audit)
+      )
+    end
+  end
+
   private
 
   def main_object?(audit)
@@ -243,5 +240,119 @@ module AuditsHelper
   def key_to_class(key, audit)
     auditable_type = (audit.auditable_type == 'Host::Base') ? 'Host::Managed' : audit.auditable_type
     auditable_type.constantize.reflect_on_association(key.sub(/_id(s?)$/, '\1'))&.klass
+  end
+
+  def rebuild_audit_changes(audit)
+    audit.audited_changes.map do |name, change|
+      next if change.nil? || change.to_s.empty?
+      next if name == 'template'
+      rec = { :name => name.humanize }
+      if audit.action == 'update'
+        rec[:change] = change.map.with_index do |v, i|
+          change_info_hash(name, v, (i == 0) ? 'show-old' : 'show-new')
+        end
+      else
+        rec[:change] = (rec[:change] || []).push(change_info_hash(name, change))
+      end
+      rec
+    end.compact
+  end
+
+  def change_info_hash(name, change, css_class = 'show-new')
+    { :css_class => css_class, :id_to_label => id_to_label(name, change, truncate: false) }
+  end
+
+  def fetch_affected_locations(audit)
+    base = audit.locations.authorized(:view_locations)
+    return [] if base.empty?
+
+    authorizer = Authorizer.new(User.current, base)
+    base.map do |location|
+      options = hash_for_edit_location_path(location).merge(:auth_object => location, :permission => 'edit_locations', :authorizer => authorizer)
+      construct_options(location.name, edit_location_path(location), options)
+    end
+  end
+
+  def fetch_affected_organizations(audit)
+    base = audit.organizations.authorized(:view_organizations)
+    return [] if base.empty?
+
+    authorizer = Authorizer.new(User.current, base)
+    base.map do |organization|
+      options = hash_for_edit_organization_path(organization).merge(:auth_object => organization, :permission => 'edit_organizations', :authorizer => authorizer)
+      construct_options(organization.name, edit_organization_path(organization), options)
+    end
+  end
+
+  def construct_options(affected_obj_name, affected_obj_url, options = {})
+    if authorized_for(options)
+      {'name' => affected_obj_name, 'url' => affected_obj_url}
+    else
+      {'name' => affected_obj_name, 'url' => '#', 'css_class' => "disabled", 'disabled' => true}
+    end
+  end
+
+  def time_of_creation(audit)
+    time = audit.created_at
+    return { 'value' => _('N/A') } if time.nil?
+    { 'title' => date_time_relative_value(time),
+      'value' => date_time_absolute_value(time, :short) }
+  end
+
+  def audit_title_url(audit)
+    keytype_array = Audit.find_complete_keytype_array(audit.auditable_type)
+    filter = "type = #{keytype_array.first} and auditable_id = #{audit.auditable_id}" if keytype_array.present?
+    (filter ? audits_path(:search => filter) : nil)
+  end
+
+  def user_info(audit)
+    return {} if audit.username.nil?
+    login = audit.user.login rescue nil # aliasing the user method sometimes yields strings
+    {
+      'display_name' => audit.username.gsub(_('User'), ''),
+      'login' => login,
+      'search_path' => audits_path(:search => login ? "user = #{login}" : "username = \"#{audit.username}\""),
+      'audit_path' => audits_path(:search => "id=#{audit.id}")
+    }
+  end
+
+  def actions_allowed(audit)
+    actions = []
+    if audit.auditable_type == 'Host::Base' && audit.auditable
+      actions.push(host_details_action(audit.auditable))
+    end
+    if audit.auditable_type.match(/^Nic/) && audit.associated_type == 'Host::Base' && audit.associated
+      actions.push(host_details_action(audit.associated, :is_associated => true))
+    end
+    if audit_template?(audit) && audit.auditable_type == 'ProvisioningTemplate' && audit.auditable
+      action_hash = template_revert_action(audit.auditable)
+      actions.push(action_hash) unless action_hash.empty?
+    end
+    actions
+  end
+
+  def host_details_action(host, options = {})
+    action_details = { :title => _("Host details"), :css_class => 'btn btn-default' }
+    action_details[:name] = _("Associated Host") if options[:is_associated]
+    auth_options = hash_for_host_path(:id => host.to_param).merge(:auth_object => host, :auth_action => 'view')
+    if authorized_for(auth_options)
+      action_details[:url] = host_path(:id => host.to_param)
+    else
+      action_details.merge!(:url => '#', :css_class => 'btn btn-default disabled', :disabled => true)
+    end
+    action_details
+  end
+
+  def template_revert_action(template_object)
+    options = hash_for_edit_provisioning_template_path(
+      :id => template_object.to_param
+    ).merge(:auth_object => template_object, :authorizer => authorizer, :permission => 'edit_provisioning_templates')
+    return {} unless authorized_for(options)
+    {
+      :title => _("Revert"),
+      :css_class => 'btn btn-default',
+      :data => { :url => provisioning_template_path(:id => template_object.to_param),
+                 :id => template_object.to_param }
+    }
   end
 end

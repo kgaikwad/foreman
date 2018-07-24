@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`display expansive view for audit record should show audit record changes 1`] = `
+<div
+  className="grid-container"
+>
+  <div>
+    <div
+      className="editor-container"
+    >
+      <textarea
+        className="col-md-12 editor_source diffMode"
+        data-file-name="test-template"
+        label="Template diff"
+        type="text"
+      />
+    </div>
+    <input
+      id="old"
+      type="hidden"
+      value="<h1>Hello..</h1>"
+    />
+    <input
+      id="new"
+      type="hidden"
+      value="<h1>Hello World..</h1>"
+    />
+  </div>
+  <table
+    className="table-changes table table-bordered table-hover"
+  >
+    <tbody />
+  </table>
+</div>
+`;

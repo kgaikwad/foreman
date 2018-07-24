@@ -1,0 +1,284 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`show AuditsList should show list of audits 1`] = `
+<ListView
+  className=""
+>
+  <ListViewItem
+    actions={
+      <span
+        style={
+          Object {
+            "color": "#999",
+          }
+        }
+        title="14 days ago"
+      >
+        30 Jul 15:02
+      </span>
+    }
+    additionalInfo={
+      Array [
+        <ListViewInfoItem
+          className=""
+          stacked={false}
+      >
+          USER
+      </ListViewInfoItem>,
+        <ListViewInfoItem
+          className=""
+          stacked={false}
+      >
+          <SearchLink
+              id={234}
+              textValue="foo"
+              title="Filter audits for this resource only"
+              url="/audits?search=type+%3D+user+and+auditable_id+%3D+9"
+          />
+      </ListViewInfoItem>,
+      ]
+    }
+    checkboxInput={null}
+    compoundExpand={false}
+    compoundExpanded={false}
+    description={
+      <ListViewDescription>
+        <ListViewDescriptionText>
+          updated
+        </ListViewDescriptionText>
+      </ListViewDescription>
+    }
+    heading={
+      <div>
+        <a
+          className="user-info"
+          data-placement="bottom"
+          data-toggle="tooltip"
+          href="/audits?search=user+%3D+admin"
+          title="Filter audits for this user only"
+        >
+          Admin 
+        </a>
+        <p
+          style={
+            Object {
+              "color": "#999",
+            }
+          }
+        >
+          (
+          127.0.0.1
+          )
+        </p>
+      </div>
+    }
+    hideCloseIcon={true}
+    id={234}
+    key="234"
+    leftContent={null}
+    onCloseCompoundExpand={[Function]}
+    onExpand={[Function]}
+    onExpandClose={[Function]}
+    stacked={false}
+  >
+    <Row
+      bsClass="row"
+      componentClass="div"
+    >
+      <ShowOrgsLocs
+        isLocEnabled={false}
+        isOrgEnabled={true}
+        locs={
+          Array [
+            Object {
+              "name": "test_loc1",
+              "url": "/locations/2-test_loc1/edit",
+            },
+            Object {
+              "name": "test_loc2",
+              "url": "/locations/6-test_loc2/edit",
+            },
+            Object {
+              "name": "test_loc3",
+              "url": "/locations/9-test_loc3/edit",
+            },
+          ]
+        }
+        orgs={
+          Array [
+            Object {
+              "name": "test_org1",
+              "url": "/organizations/1-test_org1/edit",
+            },
+            Object {
+              "name": "test_org2",
+              "url": "/organizations/3-test_org2/edit",
+            },
+            Object {
+              "name": "test_org3",
+              "url": "/organizations/5-test_org3/edit",
+            },
+          ]
+        }
+      />
+      <ActionLinks
+        allowedActions={Array []}
+        auditedChanges={
+          Object {
+            "location_ids": Array [
+              Array [
+                6,
+                9,
+              ],
+              Array [
+                6,
+                9,
+                2,
+              ],
+            ],
+            "password": Array [
+              "[redacted]",
+              "[redacted]",
+            ],
+            "role_ids": Array [
+              Array [
+                11,
+                8,
+              ],
+              Array [
+                11,
+                8,
+                14,
+                13,
+                12,
+              ],
+            ],
+          }
+        }
+      />
+    </Row>
+    <ExpansiveView
+      audit={
+        Object {
+          "action": "update",
+          "action_display_name": "updated",
+          "affected_locations": Array [
+            Object {
+              "name": "test_loc1",
+              "url": "/locations/2-test_loc1/edit",
+            },
+            Object {
+              "name": "test_loc2",
+              "url": "/locations/6-test_loc2/edit",
+            },
+            Object {
+              "name": "test_loc3",
+              "url": "/locations/9-test_loc3/edit",
+            },
+          ],
+          "affected_organizations": Array [
+            Object {
+              "name": "test_org1",
+              "url": "/organizations/1-test_org1/edit",
+            },
+            Object {
+              "name": "test_org2",
+              "url": "/organizations/3-test_org2/edit",
+            },
+            Object {
+              "name": "test_org3",
+              "url": "/organizations/5-test_org3/edit",
+            },
+          ],
+          "allowed_actions": Array [],
+          "associated_id": null,
+          "associated_name": null,
+          "associated_type": null,
+          "audit_title": "foo",
+          "audit_title_url": "/audits?search=type+%3D+user+and+auditable_id+%3D+9",
+          "auditable_id": 9,
+          "auditable_name": "foo",
+          "auditable_type": "User",
+          "audited_changes": Object {
+            "location_ids": Array [
+              Array [
+                6,
+                9,
+              ],
+              Array [
+                6,
+                9,
+                2,
+              ],
+            ],
+            "password": Array [
+              "[redacted]",
+              "[redacted]",
+            ],
+            "role_ids": Array [
+              Array [
+                11,
+                8,
+              ],
+              Array [
+                11,
+                8,
+                14,
+                13,
+                12,
+              ],
+            ],
+          },
+          "audited_changes_with_id_to_label": Array [
+            Object {
+              "change": Array [
+                Object {
+                  "css_class": "show-old",
+                  "id_to_label": "[redacted]",
+                },
+                Object {
+                  "css_class": "show-new",
+                  "id_to_label": "[redacted]",
+                },
+              ],
+              "name": "Password",
+            },
+            Object {
+              "change": Array [
+                Object {
+                  "css_class": "show-old",
+                  "id_to_label": "N/A",
+                },
+                Object {
+                  "css_class": "show-new",
+                  "id_to_label": "N/A",
+                },
+              ],
+              "name": "Role ids",
+            },
+          ],
+          "audited_type_name": "User",
+          "comment": null,
+          "creation_time": Object {
+            "title": "14 days ago",
+            "value": "30 Jul 15:02",
+          },
+          "id": 234,
+          "remote_address": "127.0.0.1",
+          "request_uuid": "c134239d-8ac3-494b-9962-35133fe153ba",
+          "user_id": 4,
+          "user_info": Object {
+            "audit_path": "/audits?search=id+%3D+234",
+            "display_name": "Admin ",
+            "login": "admin",
+            "search_path": "/audits?search=user+%3D+admin",
+          },
+          "user_type": null,
+          "username": "Admin User",
+          "version": 2,
+        }
+      }
+    />
+  </ListViewItem>
+</ListView>
+`;

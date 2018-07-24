@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`display links for organizations & locations should show organizations and locations 1`] = `
+<Col
+  bsClass="col"
+  componentClass="div"
+  sm={10}
+>
+  <ShowTaxonomyInline
+    displayLabel="Affected Organizations:"
+    items={
+      Array [
+        Object {
+          "name": "testOrg",
+          "url": "/organizations/1-testOrg/edit",
+        },
+      ]
+    }
+  />
+  <ShowTaxonomyInline
+    displayLabel="Affected Locations:"
+    items={
+      Array [
+        Object {
+          "name": "testLoc",
+          "url": "/locations/1-testLoc/edit",
+        },
+      ]
+    }
+  />
+</Col>
+`;
