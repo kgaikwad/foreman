@@ -1,13 +1,20 @@
 import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallowRenderComponentWithFixtures } from '../../../common/testHelpers';
 import AuditsList from '../../AuditsList';
 
 import { AuditsProps } from './AuditsList.fixtures';
 
-describe('show AuditsList', () => {
-  it('should show list of audits', () => {
-    const wrapper = shallow(<AuditsList data={ { ...AuditsProps } }/>);
-    expect(toJson(wrapper)).toMatchSnapshot();
+const auditsFixtures = {
+  'render resources list': { data: { ...AuditsProps } },
+};
+
+describe('AuditsList', () => {
+  describe('rendering', () => {
+    const components = shallowRenderComponentWithFixtures(AuditsList, auditsFixtures);
+    components.forEach(({ description, component }) => {
+      it(description, () => {
+        expect(toJson(component)).toMatchSnapshot();
+      });
+    });
   });
 });

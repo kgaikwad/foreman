@@ -11,7 +11,7 @@ const showTemplateDiffIfAny = (auditTitle, template) => {
     };
 
     return (
-      <div>
+      <div className="editor-section">
         <div className="editor-container">
           <textarea {...textareaProp} />
         </div>
@@ -26,61 +26,79 @@ const showTemplateDiffIfAny = (auditTitle, template) => {
 const renderListItems = items =>
   items &&
   items.map((item, index) => (
-    (item && typeof item === 'string' && item.length > 0) ? <li key={index}>{item}</li> : null
+    (item && typeof item === 'string' && item.length > 0) ? <tr key={index}><td>{item}</td></tr> : null
   ));
 
 const renderCols = changeArr =>
   changeArr &&
   changeArr.map((change, index) => (
-    <td key={index}><div className={change.css_class}><p>{change.id_to_label}</p></div></td>
+    <td key={index} className={changeArr.length > 1 ? `col-6 col-md-4 ${change.css_class}` : `col-12 col-md-8 ${change.css_class}`}>
+      <div className={change.css_class}><p>{change.id_to_label}</p></div>
+    </td>
   ));
 
 const renderTableRows = changeEntries => (
   changeEntries &&
   changeEntries.map((propDetail, index) => (
     <tr key={index}>
-      <td key={index}><div><p>{ propDetail.name }</p></div></td>
+      <td key={index} className='col-6 col-md-4'><div>{ propDetail.name }</div></td>
       { renderCols(propDetail.change) }
     </tr>
   )));
 
-const showChangesDependingUponActions = (audit) => {
-  if (['added', 'removed'].includes(audit.action_display_name)) {
+const showChangesDependingUponActions = ({
+  action_display_name: actionDisplayName,
+  audited_changes_with_id_to_label: auditedChangesWithIdToLabel,
+  details,
+}) => {
+  const tableClasses = 'table table-bordered table-hover';
+
+  if (['added', 'removed'].includes(actionDisplayName) && details.length > 0) {
     return (
-      <div className={ `details-row change-list ${audit.action_display_name === 'added' ? 'show-new' : 'show-old'}` }>
-        <ul>
-          { renderListItems(audit.details) }
-        </ul>
-      </div>
+      <table className={`${tableClasses} details-row table-inline-changes ${actionDisplayName === 'added' ? 'show-new' : 'show-old'}`}>
+        <tbody>
+          { renderListItems(details) }
+        </tbody>
+      </table>
     );
   }
 
-  return (
-    <table className="table-changes table table-bordered table-hover">
-      <tbody>
-        { renderTableRows(audit.audited_changes_with_id_to_label) }
-      </tbody>
-    </table>
-  );
+  if (auditedChangesWithIdToLabel.length > 0) {
+    return (
+      <table className={ `table-changes ${tableClasses}`}>
+        <tbody>
+          { renderTableRows(auditedChangesWithIdToLabel) }
+        </tbody>
+      </table>
+    );
+  }
+  return null;
 };
 
 class ExpansiveView extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.inputRef = React.createRef();
+  }
+
   componentDidMount() {
-    renderTemplatesDiff(this.nv);
+    renderTemplatesDiff(this.inputRef.current);
   }
 
   render() {
-    const auditObj = this.props.audit;
+    const { audit } = this.props;
+    const { audit_title: auditTitle, comment, audited_changes: auditedChanges } = audit;
 
     return (
-      <div ref={(elem) => { this.nv = elem; }} className="grid-container">
-        { showTemplateDiffIfAny(auditObj.audit_title, auditObj.audited_changes.template) }
-        { showChangesDependingUponActions(auditObj) }
+      <div ref={this.inputRef} className="grid-container">
+        { showTemplateDiffIfAny(auditTitle, auditedChanges.template) }
+        { showChangesDependingUponActions(audit) }
         {
-          auditObj.comment &&
+          comment &&
             <div className="details-row comment-section">
               <p className='comment-title'><strong>{ __('Comments') }</strong></p>
-              <p className='comment-desc'>{ auditObj.comment }</p>
+              <p className='comment-desc'>{ comment }</p>
             </div>
         }
       </div>

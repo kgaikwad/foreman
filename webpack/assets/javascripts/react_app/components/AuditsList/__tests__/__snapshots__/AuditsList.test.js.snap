@@ -1,17 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`show AuditsList should show list of audits 1`] = `
+exports[`AuditsList rendering render resources list 1`] = `
 <ListView
   className=""
 >
   <ListViewItem
     actions={
       <span
-        style={
-          Object {
-            "color": "#999",
-          }
-        }
+        className="gray-text"
         title="14 days ago"
       >
         30 Jul 15:02
@@ -49,28 +45,18 @@ exports[`show AuditsList should show list of audits 1`] = `
       </ListViewDescription>
     }
     heading={
-      <div>
-        <a
-          className="user-info"
-          data-placement="bottom"
-          data-toggle="tooltip"
-          href="/audits?search=user+%3D+admin"
-          title="Filter audits for this user only"
-        >
-          Admin 
-        </a>
-        <p
-          style={
-            Object {
-              "color": "#999",
-            }
+      <UserDetails
+        isAuditLogin={false}
+        remoteAddress="127.0.0.1"
+        userInfo={
+          Object {
+            "audit_path": "/audits?search=id+%3D+234",
+            "display_name": "Admin ",
+            "login": "admin",
+            "search_path": "/audits?search=user+%3D+admin",
           }
-        >
-          (
-          127.0.0.1
-          )
-        </p>
-      </div>
+        }
+      />
     }
     hideCloseIcon={true}
     id={234}

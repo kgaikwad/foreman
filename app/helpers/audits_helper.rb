@@ -102,7 +102,7 @@ module AuditsHelper
   end
 
   def audit_action_name(audit)
-    return (audit.action == 'destroy') ? 'destroyed' : "#{audit.action}d" if main_object? audit
+    return (audit.action == 'destroy') ? 'deleted' : "#{audit.action}d" if main_object? audit
 
     case audit.action
       when 'create'
@@ -243,6 +243,7 @@ module AuditsHelper
   end
 
   def rebuild_audit_changes(audit)
+    css_class_name = audit.action.eql?('destroy') ? 'show-old' : 'show-new'
     audit.audited_changes.map do |name, change|
       next if change.nil? || change.to_s.empty?
       next if name == 'template'
@@ -252,7 +253,7 @@ module AuditsHelper
           change_info_hash(name, v, (i == 0) ? 'show-old' : 'show-new')
         end
       else
-        rec[:change] = (rec[:change] || []).push(change_info_hash(name, change))
+        rec[:change] = (rec[:change] || []).push(change_info_hash(name, change, css_class_name))
       end
       rec
     end.compact
@@ -324,10 +325,6 @@ module AuditsHelper
     if audit.auditable_type.match(/^Nic/) && audit.associated_type == 'Host::Base' && audit.associated
       actions.push(host_details_action(audit.associated, :is_associated => true))
     end
-    if audit_template?(audit) && audit.auditable_type == 'ProvisioningTemplate' && audit.auditable
-      action_hash = template_revert_action(audit.auditable)
-      actions.push(action_hash) unless action_hash.empty?
-    end
     actions
   end
 
@@ -341,18 +338,5 @@ module AuditsHelper
       action_details.merge!(:url => '#', :css_class => 'btn btn-default disabled', :disabled => true)
     end
     action_details
-  end
-
-  def template_revert_action(template_object)
-    options = hash_for_edit_provisioning_template_path(
-      :id => template_object.to_param
-    ).merge(:auth_object => template_object, :authorizer => authorizer, :permission => 'edit_provisioning_templates')
-    return {} unless authorized_for(options)
-    {
-      :title => _("Revert"),
-      :css_class => 'btn btn-default',
-      :data => { :url => provisioning_template_path(:id => template_object.to_param),
-                 :id => template_object.to_param }
-    }
   end
 end

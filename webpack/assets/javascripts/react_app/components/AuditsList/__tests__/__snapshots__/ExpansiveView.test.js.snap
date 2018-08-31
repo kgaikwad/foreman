@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`display expansive view for audit record should show audit record changes 1`] = `
+exports[`ExpansiveView rendering render audit record changes 1`] = `
 <div
   className="grid-container"
 >

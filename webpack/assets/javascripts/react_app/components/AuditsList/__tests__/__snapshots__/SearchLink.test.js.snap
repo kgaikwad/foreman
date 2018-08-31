@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`render search link should have render a search link 1`] = `
+exports[`SearchLink rendering render a search link 1`] = `
 <a
   data-placement="bottom"
   data-toggle="tooltip"
   href="/audits?search=type+%3D+user+and+auditable_id+%3D+1"
-  id="#resource-link-123"
+  id="resource-link-123"
 >
   testUser
 </a>

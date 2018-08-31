@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserDetails rendering render user info 1`] = `
+<div>
+  <a
+    className="user-info"
+    data-placement="bottom"
+    data-toggle="tooltip"
+    href="/audits?search=user+%3D+admin"
+    title="Filter audits for this user only"
+  >
+    Admin 
+  </a>
+  <p
+    className="gray-text"
+  >
+    (
+    127.0.0.1
+    )
+  </p>
+</div>
+`;

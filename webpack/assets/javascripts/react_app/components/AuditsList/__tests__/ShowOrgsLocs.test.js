@@ -1,18 +1,20 @@
 import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallowRenderComponentWithFixtures } from '../../../common/testHelpers';
 import ShowOrgsLocs from '../ShowOrgsLocs';
 
 import { TaxonomyProps } from './AuditsList.fixtures';
 
+const ShowOrgsLocsFixtures = {
+  'render organizations and locations': { ...TaxonomyProps },
+};
 
-describe('display links for organizations & locations', () => {
-  it('should show organizations and locations', () => {
-    const wrapper = shallow(<ShowOrgsLocs isOrgEnabled={TaxonomyProps.isOrgEnabled}
-                              isLocEnabled={TaxonomyProps.isLocEnabled}
-                              orgs={TaxonomyProps.orgs}
-                              locs={TaxonomyProps.locs} />);
-
-    expect(toJson(wrapper)).toMatchSnapshot();
+describe('ShowOrgsLocs', () => {
+  describe('rendering', () => {
+    const components = shallowRenderComponentWithFixtures(ShowOrgsLocs, ShowOrgsLocsFixtures);
+    components.forEach(({ description, component }) => {
+      it(description, () => {
+        expect(toJson(component)).toMatchSnapshot();
+      });
+    });
   });
 });

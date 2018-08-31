@@ -1,15 +1,21 @@
 import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallowRenderComponentWithFixtures } from '../../../common/testHelpers';
 import ActionLinks from '../ActionLinks';
 
 import { actionsList } from './AuditsList.fixtures';
 
+const actionLinksFixture = {
+  'render action links': { allowedActions: actionsList },
+};
 
-describe('actions links', () => {
-  it('should have an action links', () => {
-    const wrapper = shallow(<ActionLinks allowedActions={ actionsList } />);
-    expect(wrapper.find('a').length).toEqual(2);
-    expect(toJson(wrapper)).toMatchSnapshot();
+describe('ActionLinks', () => {
+  describe('rendering', () => {
+    const components = shallowRenderComponentWithFixtures(ActionLinks, actionLinksFixture);
+    components.forEach(({ description, component }) => {
+      it(description, () => {
+        expect(component.find('a').length).toEqual(1);
+        expect(toJson(component)).toMatchSnapshot();
+      });
+    });
   });
 });

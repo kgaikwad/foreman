@@ -1,19 +1,22 @@
 import toJson from 'enzyme-to-json';
 import { shallowRenderComponentWithFixtures } from '../../../common/testHelpers';
-import ExpansiveView from '../ExpansiveView';
+import UserDetails from '../UserDetails';
 
 import { AuditRecord } from './AuditsList.fixtures';
 
-const auditFixtures = {
-  'render audit record changes': { audit: AuditRecord },
+const userFixtures = {
+  'render user info': {
+    isAuditLogin: false,
+    remoteAddress: AuditRecord.remote_address,
+    userInfo: AuditRecord.user_info,
+  },
 };
 
-describe('ExpansiveView', () => {
+describe('UserDetails', () => {
   describe('rendering', () => {
-    const components = shallowRenderComponentWithFixtures(ExpansiveView, auditFixtures);
+    const components = shallowRenderComponentWithFixtures(UserDetails, userFixtures);
     components.forEach(({ description, component }) => {
       it(description, () => {
-        expect(component.find('.editor_source.diffMode').length).toEqual(1);
         expect(toJson(component)).toMatchSnapshot();
       });
     });

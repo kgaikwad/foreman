@@ -8,12 +8,12 @@ const ShowOrgsLocs = ({
   orgs = [],
   locs = [],
 }) => (
-  <Col sm={10}>
+  <Col sm={10} className='taxonomy-section'>
     { isOrgEnabled &&
-        <ShowTaxonomyInline displayLabel={__('Affected Organizations:')} items={orgs}></ShowTaxonomyInline>
+        <ShowTaxonomyInline displayLabel={__('Affected Organizations')} items={orgs}></ShowTaxonomyInline>
     }
     { isLocEnabled &&
-        <ShowTaxonomyInline displayLabel={__('Affected Locations:')} items={locs}></ShowTaxonomyInline>
+        <ShowTaxonomyInline displayLabel={__('Affected Locations')} items={locs}></ShowTaxonomyInline>
     }
   </Col>
 );

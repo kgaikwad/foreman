@@ -375,12 +375,12 @@ export function renderTemplatesDiff(containerDiv) {
     $(document).on('resize', editorId, () => {
       editor.resize();
     });
-
     setDiffMode(
       editorSource,
       editorContainer.siblings('#old').val(),
       editorContainer.siblings('#new').val(),
       editor,
     );
+    editor.setOptions({ autoScrollEditorIntoView: true, maxLines: 10 });
   }
 }

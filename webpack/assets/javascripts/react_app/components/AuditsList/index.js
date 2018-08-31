@@ -1,9 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { ListView, Row } from 'patternfly-react';
 import SearchLink from './SearchLink';
 import ShowOrgsLocs from './ShowOrgsLocs';
 import ActionLinks from './ActionLinks';
 import ExpansiveView from './ExpansiveView';
+import UserDetails from './UserDetails';
 import './audit.scss';
 
 const isAuditLogin = (audit) => {
@@ -14,34 +16,6 @@ const isAuditLogin = (audit) => {
     name = '';
   }
   return name === 'last_login_on';
-};
-
-const style = { color: '#999' };
-
-const userDetails = (audit) => {
-  const userInfo = audit.user_info;
-  const linkProps = {
-    href: userInfo.search_path,
-    title: 'Filter audits for this user only',
-    'data-toggle': 'tooltip',
-    'data-placement': 'bottom',
-    className: 'user-info',
-  };
-  if (isAuditLogin(audit)) {
-    return (
-      <div>
-        <a { ...linkProps }>{userInfo.display_name}</a>
-        <a href={userInfo.audit_path }>__('Logged-in')</a>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <a { ...linkProps }>{userInfo.display_name}</a>
-      {audit.remote_address ? (<p style={style}>({audit.remote_address})</p>) : null}
-    </div>
-  );
 };
 
 const description = audit => (
@@ -59,19 +33,19 @@ const renderAdditionalInfoItems = items =>
   ));
 
 const renderActions = timeObject =>
-  <span title={timeObject.title} style={style}>{timeObject.value}</span>;
+  <span title={timeObject.title} className='gray-text'>{timeObject.value}</span>;
 
-const renderResourceLink = (audit) => {
-  if (audit.audit_title_url) {
+const renderResourceLink = ({ audit_title: auditTitle, audit_title_url: auditTitleUrl, id }) => {
+  if (auditTitleUrl) {
     return (
-     <SearchLink url={audit.audit_title_url} textValue={audit.audit_title}
-              title='Filter audits for this resource only' id={audit.id}></SearchLink>
+     <SearchLink url={auditTitleUrl} textValue={auditTitle}
+              title={__('Filter audits for this resource only')} id={id}></SearchLink>
     );
   }
-  return audit.audit_title;
+  return auditTitle;
 };
 
-export default ({ data: { audits, isOrgEnabled, isLocEnabled } }) => (
+const AuditsList = ({ data: { audits, isOrgEnabled, isLocEnabled } }) => (
   <ListView>
     {audits.map((audit, index) => (
       <ListView.Item id={audit.id} key={audit.id}
@@ -80,7 +54,10 @@ export default ({ data: { audits, isOrgEnabled, isLocEnabled } }) => (
           renderAdditionalInfoItems([
             audit.audited_type_name.toUpperCase(), renderResourceLink(audit)])
         }
-        heading={userDetails(audit)}
+        heading={
+          <UserDetails isAuditLogin={isAuditLogin(audit)}
+            userInfo={audit.user_info} remoteAddress={audit.remote_address} />
+        }
         description={description(audit)}
         stacked={false}
         hideCloseIcon={true}
@@ -97,3 +74,13 @@ export default ({ data: { audits, isOrgEnabled, isLocEnabled } }) => (
     ))}
   </ListView>
 );
+
+AuditsList.propTypes = {
+  data: PropTypes.shape({
+    audits: PropTypes.array.isRequired,
+    isOrgEnabled: PropTypes.bool,
+    isLocEnabled: PropTypes.bool,
+  }),
+};
+
+export default AuditsList;

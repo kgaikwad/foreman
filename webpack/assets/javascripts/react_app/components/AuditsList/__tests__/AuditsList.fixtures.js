@@ -10,12 +10,6 @@ export const actionsList = [
     title: __('Host details'),
     css_class: 'btn btn-default',
   },
-  {
-    url: '#',
-    title: __('Revert'),
-    css_class: 'btn btn-default disabled',
-    disabled: true,
-  },
 ];
 
 export const TaxonomyProps = {
@@ -50,13 +44,11 @@ export const AuditRecord = {
     }],
   allowed_actions: [
     {
+      url: '/hosts/foo.example.com',
+      title: __('Host details'),
       css_class: 'btn btn-default',
-      data: {
-        'data-id': '1-test-template',
-        'data-url': '/templates/provisioning_templates/1-test-template',
-      },
-      title: 'Revert',
-    }],
+    },
+  ],
   associated_id: null,
   associated_name: null,
   associated_type: null,

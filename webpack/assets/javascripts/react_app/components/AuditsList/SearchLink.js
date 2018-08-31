@@ -2,16 +2,23 @@ import React from 'react';
 
 class SearchLink extends React.Component {
   render() {
+    const {
+      url,
+      title,
+      id,
+      textValue,
+    } = this.props;
+
     const linkProps = {
-      href: this.props.url,
-      title: this.props.title,
+      href: url,
+      title,
       'data-toggle': 'tooltip',
       'data-placement': 'bottom',
-      id: `#resource-link-${this.props.id}`,
+      id: `resource-link-${id}`,
     };
 
     return (
-      <a { ...linkProps }>{this.props.textValue}</a>
+      <a { ...linkProps }>{textValue}</a>
     );
   }
 }

@@ -1,13 +1,20 @@
 import toJson from 'enzyme-to-json';
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallowRenderComponentWithFixtures } from '../../../common/testHelpers';
 import SearchLink from '../SearchLink';
 
 import { searchLinkProp } from './AuditsList.fixtures';
 
-describe('render search link', () => {
-  it('should have render a search link', () => {
-    const wrapper = shallow(<SearchLink { ...searchLinkProp }/>);
-    expect(toJson(wrapper)).toMatchSnapshot();
+const searchLinkFixture = {
+  'render a search link': searchLinkProp,
+};
+
+describe('SearchLink', () => {
+  describe('rendering', () => {
+    const components = shallowRenderComponentWithFixtures(SearchLink, searchLinkFixture);
+    components.forEach(({ description, component }) => {
+      it(description, () => {
+        expect(toJson(component)).toMatchSnapshot();
+      });
+    });
   });
 });

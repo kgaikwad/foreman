@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`actions links should have an action links 1`] = `
+exports[`ActionLinks rendering render action links 1`] = `
 <Col
   bsClass="col"
   className="actions-btns"
@@ -32,40 +32,8 @@ exports[`actions links should have an action links 1`] = `
       className="btn btn-default"
       href="/hosts/foo.example.com"
       key="0"
-      onClick={null}
     >
       Host details
-    </a>
-  </OverlayTrigger>
-  <OverlayTrigger
-    defaultOverlayShown={false}
-    id="notifications-toggle-icon"
-    key="1"
-    overlay={
-      <Tooltip
-        bsClass="tooltip"
-        id={1}
-        placement="right"
-      >
-        Revert
-      </Tooltip>
-    }
-    placement="top"
-    trigger={
-      Array [
-        "hover",
-        "focus",
-      ]
-    }
-  >
-    <a
-      className="btn btn-default disabled"
-      disabled={true}
-      href="#"
-      key="1"
-      onClick={null}
-    >
-      Revert
     </a>
   </OverlayTrigger>
 </Col>
