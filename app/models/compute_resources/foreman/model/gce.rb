@@ -111,7 +111,6 @@ module Foreman::Model
     def create_vm(args = {})
       new_vm(args)
       create_volumes(args)
-
       username = images.find_by(:uuid => args[:image_id]).try(:username)
       ssh      = { :username => username, :public_key => key_pair.public }
 
@@ -122,7 +121,7 @@ module Foreman::Model
       logger.debug("creating VM with the following options: #{options.inspect}")
 
       vm = client.servers.create options.to_hash.deep_symbolize_keys.merge(server_optns.symbolize_keys)
-      vm.disks.each { |disk| vm.set_disk_auto_delete(true, disk['deviceName']) }
+      vm.disks.each { |disk| vm.set_disk_auto_delete(true, disk[:device_name]) }
       vm
     rescue Fog::Errors::Error => e
       args[:disks].find_all(&:status).map(&:destroy) if args[:disks].present?
@@ -209,7 +208,7 @@ module Foreman::Model
 
     private
 
-     # handle network_interface for external ip
+    # handle network_interface for external ip
     def construct_network_interfaces(network_interfaces_list, external_ip = nil)
       # assign  ephemeral external IP address using associate_external_ip
       if network_interfaces_list.blank?
@@ -222,6 +221,7 @@ module Foreman::Model
 
       access_config = { :name => "External NAT", :type => "ONE_TO_ONE_NAT" }
 
+      # note - currently not supporting external_ip from foreman
       # Add external IP as default access config if given
       access_config[:nat_ip] = external_ip if external_ip
       network_interfaces_list[0][:access_configs] = [access_config]
