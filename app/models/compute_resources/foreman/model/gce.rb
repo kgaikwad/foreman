@@ -111,8 +111,14 @@ module Foreman::Model
       ssh      = { :username => username, :public_key => key_pair.public }
       args.merge!(ssh)
 
+      # Note - GCE only supports cloud-init for Container Optimized images and
+      # for custom images with cloud-init setup
+      if args[:user_data].present?
+        args[:metadata] = { :items => [{ :key => 'user-data', :value => args[:user_data] }]}
+        args.except!(:user_data)
+      end
       options = vm_instance_defaults.merge(args.to_hash.deep_symbolize_keys)
-      server_optns = options.slice!(:network_interfaces)
+      server_optns = options.slice!(:network_interfaces, :metadata)
 
       vm = client.servers.create options.to_hash.deep_symbolize_keys.merge(server_optns.symbolize_keys)
       vm.disks.each { |disk| vm.set_disk_auto_delete(true, disk[:device_name]) }
@@ -179,6 +185,10 @@ module Foreman::Model
       end
 
       normalized
+    end
+
+    def user_data_supported?
+      true
     end
 
     private
