@@ -91,6 +91,13 @@ module Foreman::Model
         args.except!(:associate_external_ip)
       end
 
+      # Note - GCE only supports cloud-init for Container Optimized images and
+      # for custom images with cloud-init setup
+      if args[:user_data].present?
+        args[:metadata] = { :items => [{ :key => 'user-data', :value => args[:user_data] }]}
+        args.except!(:user_data)
+      end
+
       if args[:volumes].present?
         if args[:image_id].to_i > 0
           args[:volumes].first[:source_image] = client.images.find { |i| i.id == args[:image_id].to_i }.name
@@ -111,12 +118,6 @@ module Foreman::Model
       ssh      = { :username => username, :public_key => key_pair.public }
       args.merge!(ssh)
 
-      # Note - GCE only supports cloud-init for Container Optimized images and
-      # for custom images with cloud-init setup
-      if args[:user_data].present?
-        args[:metadata] = { :items => [{ :key => 'user-data', :value => args[:user_data] }]}
-        args.except!(:user_data)
-      end
       options = vm_instance_defaults.merge(args.to_hash.deep_symbolize_keys)
       server_optns = options.slice!(:network_interfaces, :metadata)
 
@@ -179,9 +180,7 @@ module Foreman::Model
 
       volume_attrs = vm_attrs['volumes_attributes'] || {}
       normalized['volumes_attributes'] = volume_attrs.each_with_object({}) do |(key, vol), volumes|
-        volumes[key] = {
-          'size' => memory_gb_to_bytes(vol['size_gb']).to_s
-        }
+        volumes[key] = { 'size' => memory_gb_to_bytes(vol['size_gb']).to_s }
       end
 
       normalized
@@ -194,10 +193,12 @@ module Foreman::Model
     private
 
     def client
-      @client ||= ::Fog::Compute.new(:provider => 'google',
-                                     :google_project => project,
-                                     :google_client_email => email,
-                                     :google_json_key_location => key_path)
+      @client ||= ::Fog::Compute.new(
+        :provider => 'google',
+        :google_project => project,
+        :google_client_email => email,
+        :google_json_key_location => key_path
+      )
     end
 
     def construct_network(network_name)
@@ -214,12 +215,10 @@ module Foreman::Model
           }
         ]
       end
-
       access_config = { :name => "External NAT", :type => "ONE_TO_ONE_NAT" }
 
-      # note - currently not supporting external_ip from foreman
-      # Add external IP as default access config if given
-      access_config[:nat_ip] = external_ip if external_ip
+      # Note - no support for external_ip from foreman
+      # access_config[:nat_ip] = external_ip if external_ip
       network_interfaces_list[0][:access_configs] = [access_config]
       network_interfaces_list
     end
