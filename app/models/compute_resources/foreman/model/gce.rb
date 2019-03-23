@@ -149,7 +149,6 @@ module Foreman::Model
       ComputeResource.model_name
     end
 
-    # TODO - Need to modify this behaviour as per other compute resources
     def setup_key_pair
       require 'sshkey'
       name = "foreman-#{id}#{Foreman.uuid}"
@@ -187,9 +186,9 @@ module Foreman::Model
 
       volume_attrs = vm_attrs['volumes_attributes'] || {}
       normalized['volumes_attributes'] = volume_attrs.each_with_object({}) do |(key, vol), volumes|
-        volumes[key] = {
-          'size' => memory_gb_to_bytes(vol['size_gb']).to_s
-        }
+        if vol['_delete'].empty?
+          volumes[key] = { 'size' => memory_gb_to_bytes(vol['size_gb']).to_s }
+        end
       end
 
       normalized
@@ -228,9 +227,9 @@ module Foreman::Model
 
       access_config = { :name => "External NAT", :type => "ONE_TO_ONE_NAT" }
 
-      # note - currently not supporting external_ip from foreman
+      # Note - currently not supporting external_ip from foreman
       # Add external IP as default access config if given
-      access_config[:nat_ip] = external_ip if external_ip
+      # access_config[:nat_ip] = external_ip if external_ip
       network_interfaces_list[0][:access_configs] = [access_config]
       network_interfaces_list
     end
