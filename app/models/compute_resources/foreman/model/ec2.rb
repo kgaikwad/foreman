@@ -50,11 +50,26 @@ module Foreman::Model
       raise(ActiveRecord::RecordNotFound)
     end
 
+    def parse_tags(args)
+      # Merge AWS EC2 tags
+      tags = {}
+      if (name = args[:name])
+        tags = {:Name => name}
+      end
+
+      args[:tags_attributes]&.each do |id, tag|
+        # Validation against AWS rules
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html
+        next if tag[:key] =~ /^aws:/
+        next unless tag[:key] =~ /^[\p{L}\p{N} +-=._:\/@]{1,128}$/
+        next unless tag[:value] =~ /^[\p{L}\p{N} +-=._:\/@]{1,256}$/
+        tags[tag[:key]] = tag[:value]
+      end
+    end
+
     def create_vm(args = { })
       args = vm_instance_defaults.merge(args.to_h.symbolize_keys).deep_symbolize_keys
-      if (name = args[:name])
-        args[:tags] = {:Name => name}
-      end
+      args[:tags] = parse_tags(args)
       if (image_id = args[:image_id])
         image = images.find_by_uuid(image_id.to_s)
         iam_hash = image.iam_role.present? ? {:iam_instance_profile_name => image.iam_role} : {}
