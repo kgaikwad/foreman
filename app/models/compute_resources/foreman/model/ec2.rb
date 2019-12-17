@@ -64,6 +64,11 @@ module Foreman::Model
       args[:security_group_ids].reject!(&:empty?) if args.has_key?(:security_group_ids)
       args[:associate_public_ip] = subnet_implies_is_vpc?(args) && args[:managed_ip] == 'public'
       args[:private_ip_address] = args[:interfaces_attributes][:"0"][:ip]
+      # Extract root device name and default size from AMI definition
+      root_device_definition = root_device_from_ami(image.uuid)
+      # Can be used to override root size
+      # root_device_definition["Ebs.VolumeSize"] = 100
+      args[:block_device_mapping] = [ root_device_definition ]
       super(args)
     rescue Fog::Errors::Error => e
       Foreman::Logging.exception("Unhandled EC2 error", e)
@@ -86,6 +91,14 @@ module Foreman::Model
       @zones ||= client.describe_availability_zones.body["availabilityZoneInfo"].map { |r| r["zoneName"] if r["regionName"] == region }.compact
     end
     alias_method :available_zones, :zones
+
+    def root_device_from_ami(ami_id)
+      ami_desc = client.describe_images('image-id' => ami_id).body["imagesSet"][0]
+      root_device_name = ami_desc["rootDeviceName"]
+      root_device_definition = ami_desc["blockDeviceMapping"].find {|x| x["deviceName"] == root_device_name}
+      root_device_size = root_device_definition["volumeSize"]
+      {:DeviceName => root_device_name, 'Ebs.VolumeSize' => root_device_size}
+    end
 
     def test_connection(options = {})
       super
