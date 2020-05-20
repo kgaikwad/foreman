@@ -55,20 +55,20 @@ module Foreman::Model
       if (name = args[:name])
         args[:tags] = {:Name => name}
       end
+
       if (image_id = args[:image_id])
         image = images.find_by_uuid(image_id.to_s)
         iam_hash = image.iam_role.present? ? {:iam_instance_profile_name => image.iam_role} : {}
+        # Extract root device name and default size from AMI definition
+        # Can be used to override root size
+        # root_device_definition["Ebs.VolumeSize"] = 100
+        iam_hash[:block_device_mapping] = [ root_device_from_ami(image.uuid) ]
         args.merge!(iam_hash)
       end
       args[:groups].reject!(&:empty?) if args.has_key?(:groups)
       args[:security_group_ids].reject!(&:empty?) if args.has_key?(:security_group_ids)
       args[:associate_public_ip] = subnet_implies_is_vpc?(args) && args[:managed_ip] == 'public'
       args[:private_ip_address] = args[:interfaces_attributes][:"0"][:ip]
-      # Extract root device name and default size from AMI definition
-      root_device_definition = root_device_from_ami(image.uuid)
-      # Can be used to override root size
-      # root_device_definition["Ebs.VolumeSize"] = 100
-      args[:block_device_mapping] = [ root_device_definition ]
       super(args)
     rescue Fog::Errors::Error => e
       Foreman::Logging.exception("Unhandled EC2 error", e)
