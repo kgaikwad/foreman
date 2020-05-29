@@ -1,11 +1,13 @@
-<tr>
+<tr class="fields">
   <td>
-    <%= f.text_field(:name, class: "form-control", disabled: !editable, placeholder: _("Name")) %>
+    <%= f.text_field(:key, class: "form-control", disabled: !new_vm, placeholder: _("Key")) %>
   </td>
   <td>
-    <%= f.text_field(:value, class: "form-control", disabled: !editable, placeholder: _("Tag")) %>
+    <%= f.text_field(:value, class: "form-control", disabled: !new_vm, placeholder: _("Value")) %>
   </td>
-  <td>
-    <%= link_to_remove_fields(_('Remove'), f, title: _('Remove tag')) if editable %>
-  </td>
+  <% if new_vm %>
+    <td>
+      <%= link_to_remove_fields(_('Remove'), f, title: _('Remove tag')) %>
+    </td>
+  <% end %>
 </tr>

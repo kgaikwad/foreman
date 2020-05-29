@@ -348,7 +348,8 @@ module FormHelper
 
   def link_to_remove_fields(name, f, options = {})
     options[:title] ||= _("Remove Parameter")
-    f.hidden_field(:_destroy) + link_to_function(icon_text('remove', name, :kind => 'pficon'), "remove_fields(this)", options)
+    method_name = f.object.respond_to?(:_destroy) ? :_destroy : :_delete
+    f.hidden_field(method_name) + link_to_function(icon_text('remove', name, :kind => 'pficon'), "remove_fields(this)", options)
   end
 
   # Creates a link to a javascript function that creates field entries for the association on the web page
