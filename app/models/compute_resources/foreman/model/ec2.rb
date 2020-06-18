@@ -97,7 +97,7 @@ module Foreman::Model
       return [] unless ami_desc["rootDeviceType"].eql?('ebs')
 
       root_device_name = ami_desc["rootDeviceName"]
-      root_device_definition = ami_desc["blockDeviceMapping"].find {|x| x["deviceName"] == root_device_name}
+      root_device_definition = ami_desc["blockDeviceMapping"].find { |x| x["deviceName"] == root_device_name }
       return [] unless root_device_definition
 
       [{:DeviceName => root_device_name, 'Ebs.VolumeSize' => root_device_definition["volumeSize"]}]
